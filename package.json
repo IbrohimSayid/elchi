@@ -1,0 +1,24 @@
+{
+  "name": "anonim-chat-bot",
+  "version": "1.0.0",
+  "description": "Telegram anonim chat bot - ikki foydalanuvchini anonim bog'laydi",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js",
+    "dev": "nodemon bot.js"
+  },
+  "dependencies": {
+    "node-telegram-bot-api": "^0.66.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "anonim",
+    "chat"
+  ],
+  "author": "",
+  "license": "MIT"
+} 
