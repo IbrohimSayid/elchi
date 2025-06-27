@@ -45,21 +45,21 @@ bot.onText(/\/start/, (msg) => {
         }
         
         // Yangi kelgan foydalanuvchiga text xabar
-        const joinedMessage = `🎉 *Ikkinchi odam qo'shildi suhbat boshlandi!* 💬✨
+        const joinedMessage = `🎉 <b>Ikkinchi odam qo'shildi suhbat boshlandi!</b> 💬✨
 
-🎭 *Anonim Chat Bot*ga xush kelibsiz!
+🎭 <b>Anonim Chat Bot</b>ga xush kelibsiz!
 
 ✅ Hamkor topildi va suhbat boshlandi
 💬 Endi anonim suhbat qilishingiz mumkin
 🎪 Barcha xabarlar "Anonim:" prefiksi bilan uzatiladi
 
-📋 *Yordam komandalar:*
+📋 <b>Yordam komandalar:</b>
 🛑 /stop - Suhbatni tugatish
 🚪 /exit - Navbatdan chiqish
 
-🎉 *Yaxshi suhbat qiling!*`;
+🎉 <b>Yaxshi suhbat qiling!</b>`;
         
-        bot.sendMessage(chatId, joinedMessage, { parse_mode: 'Markdown' });
+        bot.sendMessage(chatId, joinedMessage, { parse_mode: 'HTML' });
         
         // Kutayotgan foydalanuvchiga ham rasm yuborish
         if (fs.existsSync(imagePath)) {
@@ -67,21 +67,21 @@ bot.onText(/\/start/, (msg) => {
         }
         
         // Kutayotgan foydalanuvchiga text xabar
-        const partnerMessage = `🎉 *Ikkinchi odam qo'shildi suhbat boshlandi!* 💬✨
+        const partnerMessage = `🎉 <b>Ikkinchi odam qo'shildi suhbat boshlandi!</b> 💬✨
 
-🎭 *Anonim Chat Bot*da suhbat boshlandi!
+🎭 <b>Anonim Chat Bot</b>da suhbat boshlandi!
 
 ✅ Yangi hamkor topildi
 💬 Endi anonim suhbat qilishingiz mumkin  
 🎪 Barcha xabarlar "Anonim:" prefiksi bilan uzatiladi
 
-📋 *Yordam komandalar:*
+📋 <b>Yordam komandalar:</b>
 🛑 /stop - Suhbatni tugatish
 🚪 /exit - Navbatdan chiqish
 
-🎉 *Yaxshi suhbat qiling!*`;
+🎉 <b>Yaxshi suhbat qiling!</b>`;
         
-        bot.sendMessage(partnerId, partnerMessage, { parse_mode: 'Markdown' });
+        bot.sendMessage(partnerId, partnerMessage, { parse_mode: 'HTML' });
         
     } else {
         // Birinchi foydalanuvchi - navbatga qo'shish
@@ -94,26 +94,26 @@ bot.onText(/\/start/, (msg) => {
         }
         
         // Birinchi foydalanuvchiga text xabar
-        const waitingMessage = `⏳ *Ikkinchi odam kirishi kutilmoqda...* 🙏
+        const waitingMessage = `⏳ <b>Ikkinchi odam kirishi kutilmoqda...</b> 🙏
 
-🎭 *Anonim Chat Bot*ga xush kelibsiz!
+🎭 <b>Anonim Chat Bot</b>ga xush kelibsiz!
 
 🔍 Hamkor qidirilmoqda...
 ⏰ Iltimos kutib turing
 👥 Ikkinchi foydalanuvchi kirishini kutmoqda
 
-📋 *Ma'lumot:*
+📋 <b>Ma'lumot:</b>
 • Siz birinchi foydalanuvchisiz
 • Ikkinchi odam kirganda avtomatik bog'lanasiz
 • Barcha suhbatlar anonim bo'ladi
 
-📋 *Yordam komandalar:*
+📋 <b>Yordam komandalar:</b>
 🚪 /exit - Navbatdan chiqish
 🔄 /start - Qaytadan urinish
 
-⏳ *Iltimos kutib turing...*`;
+⏳ <b>Iltimos kutib turing...</b>`;
         
-        bot.sendMessage(chatId, waitingMessage, { parse_mode: 'Markdown' });
+        bot.sendMessage(chatId, waitingMessage, { parse_mode: 'HTML' });
     }
 });
 
@@ -124,8 +124,8 @@ bot.onText(/\/admin/, (msg) => {
     // Admin huquqlarini tekshirish (hozircha barcha foydalanuvchilar admin bo'lishi mumkin)
     adminMode[chatId] = true;
     
-    let usersList = "🔧 *ADMIN PANEL* 🔧\n";
-    usersList += "👥 *Foydalanuvchilar ro'yxati:*\n\n";
+    let usersList = "🔧 <b>ADMIN PANEL</b> 🔧\n";
+    usersList += "👥 <b>Foydalanuvchilar ro'yxati:</b>\n\n";
     
     const userCount = Object.keys(allUsers).length;
     if (userCount === 0) {
@@ -138,28 +138,28 @@ bot.onText(/\/admin/, (msg) => {
             const isWaiting = waitingUsers.includes(parseInt(userId)) ? "⏳ Kutmoqda" : "";
             
             usersList += `${count}. ${isActive} ${isWaiting}\n`;
-            usersList += `🆔 *ID:* \`${user.id}\`\n`;
-            usersList += `👤 *Ism:* ${user.firstName}\n`;
-            usersList += `👥 *Familiya:* ${user.lastName}\n`;
-            usersList += `📝 *Username:* @${user.username}\n`;
-            usersList += `📅 *Qo'shilgan:* ${new Date(user.joinDate).toLocaleString()}\n`;
-            usersList += `🗑️ *O'chirish:* /del${user.id}\n\n`;
+            usersList += `🆔 <b>ID:</b> ${user.id}\n`;
+            usersList += `👤 <b>Ism:</b> ${user.firstName}\n`;
+            usersList += `👥 <b>Familiya:</b> ${user.lastName}\n`;
+            usersList += `📝 <b>Username:</b> @${user.username}\n`;
+            usersList += `📅 <b>Qo'shilgan:</b> ${new Date(user.joinDate).toLocaleString()}\n`;
+            usersList += `🗑️ <b>O'chirish:</b> /del${user.id}\n\n`;
             count++;
         }
     }
     
-    usersList += "📊 *Statistika:*\n";
+    usersList += "📊 <b>Statistika:</b>\n";
     usersList += `👥 Jami foydalanuvchilar: ${userCount}\n`;
     usersList += `💬 Faol suhbatlar: ${Object.keys(activeChats).length / 2}\n`;
     usersList += `⏳ Kutayotganlar: ${waitingUsers.length}\n\n`;
     
-    usersList += "🔧 *Admin komandalar:*\n";
+    usersList += "🔧 <b>Admin komandalar:</b>\n";
     usersList += "🚪 /adminexit - Adminlikdan chiqish\n";
     usersList += "🗑️ /del[ID] - Foydalanuvchini o'chirish\n";
     usersList += "📊 /stats - Statistika\n";
     usersList += "🧹 /clear - Barcha ma'lumotlarni tozalash\n";
     
-    bot.sendMessage(chatId, usersList, { parse_mode: 'Markdown' });
+    bot.sendMessage(chatId, usersList, { parse_mode: 'HTML' });
 });
 
 // Adminlikdan chiqish
@@ -187,29 +187,29 @@ bot.onText(/\/stats/, (msg) => {
     const activeChatCount = Object.keys(activeChats).length / 2;
     const waitingCount = waitingUsers.length;
     
-    let statsMessage = "📊 *DETALLI STATISTIKA* 📊\n\n";
+    let statsMessage = "📊 <b>DETALLI STATISTIKA</b> 📊\n\n";
     
-    statsMessage += "👥 *Foydalanuvchilar:*\n";
+    statsMessage += "👥 <b>Foydalanuvchilar:</b>\n";
     statsMessage += `├── Jami: ${userCount}\n`;
     statsMessage += `├── Faol suhbatda: ${Object.keys(activeChats).length}\n`;
     statsMessage += `└── Kutayotganlar: ${waitingCount}\n\n`;
     
-    statsMessage += "💬 *Suhbatlar:*\n";
+    statsMessage += "💬 <b>Suhbatlar:</b>\n";
     statsMessage += `├── Faol chatlar: ${activeChatCount}\n`;
     statsMessage += `└── Navbatda kutuvchilar: ${waitingCount}\n\n`;
     
-    statsMessage += "🕒 *Vaqt:*\n";
+    statsMessage += "🕒 <b>Vaqt:</b>\n";
     statsMessage += `└── Hozir: ${new Date().toLocaleString()}\n\n`;
     
     if (userCount > 0) {
-        statsMessage += "👤 *Oxirgi foydalanuvchilar:*\n";
+        statsMessage += "👤 <b>Oxirgi foydalanuvchilar:</b>\n";
         const recentUsers = Object.values(allUsers).slice(-3);
         recentUsers.forEach((user, index) => {
             statsMessage += `${index + 1}. ${user.firstName} (ID: ${user.id})\n`;
         });
     }
     
-    bot.sendMessage(chatId, statsMessage, { parse_mode: 'Markdown' });
+    bot.sendMessage(chatId, statsMessage, { parse_mode: 'HTML' });
 });
 
 // Barcha ma'lumotlarni tozalash
@@ -239,7 +239,7 @@ bot.onText(/\/clear/, (msg) => {
     activeChats = {};
     allUsers = {};
     
-    bot.sendMessage(chatId, `🧹 *Barcha ma'lumotlar tozalandi!*\n\n📊 O'chirilgan:\n├── ${userCount} foydalanuvchi\n├── ${chatCount} faol chat\n└── ${waitingCount} kutuvchi\n\n✅ Tizim tozalandi!`, { parse_mode: 'Markdown' });
+    bot.sendMessage(chatId, `🧹 <b>Barcha ma'lumotlar tozalandi!</b>\n\n📊 O'chirilgan:\n├── ${userCount} foydalanuvchi\n├── ${chatCount} faol chat\n└── ${waitingCount} kutuvchi\n\n✅ Tizim tozalandi!`, { parse_mode: 'HTML' });
 });
 
 // Foydalanuvchini o'chirish
@@ -272,7 +272,7 @@ bot.onText(/\/del(.+)/, (msg, match) => {
             waitingUsers.splice(waitingIndex, 1);
         }
         
-        bot.sendMessage(chatId, `✅ Foydalanuvchi o'chirildi:\n👤 *Ism:* ${deletedUser.firstName}\n🆔 *ID:* ${userKey}`, { parse_mode: 'Markdown' });
+        bot.sendMessage(chatId, `✅ Foydalanuvchi o'chirildi:\n👤 <b>Ism:</b> ${deletedUser.firstName}\n🆔 <b>ID:</b> ${userKey}`, { parse_mode: 'HTML' });
         
         // Yangi admin panel ko'rsatish
         setTimeout(() => {
@@ -335,39 +335,39 @@ bot.on('message', (msg) => {
         
         // Xabar turini aniqlash va hamkorga yuborish
         if (msg.text) {
-            bot.sendMessage(partnerId, `🎭 *Anonim:* ${msg.text}`, { parse_mode: 'Markdown' });
+            bot.sendMessage(partnerId, `🎭 <b>Anonim:</b> ${msg.text}`, { parse_mode: 'HTML' });
         } else if (msg.photo) {
             bot.sendPhoto(partnerId, msg.photo[msg.photo.length - 1].file_id, {
-                caption: msg.caption ? `🎭 *Anonim:* ${msg.caption}` : '🎭 *Anonim:* 📷 Rasm yubordi',
-                parse_mode: 'Markdown'
+                caption: msg.caption ? `🎭 <b>Anonim:</b> ${msg.caption}` : '🎭 <b>Anonim:</b> 📷 Rasm yubordi',
+                parse_mode: 'HTML'
             });
         } else if (msg.voice) {
             bot.sendVoice(partnerId, msg.voice.file_id);
-            bot.sendMessage(partnerId, '🎭 *Anonim:* 🎤 Ovozli xabar yubordi', { parse_mode: 'Markdown' });
+            bot.sendMessage(partnerId, '🎭 <b>Anonim:</b> 🎤 Ovozli xabar yubordi', { parse_mode: 'HTML' });
         } else if (msg.video) {
             bot.sendVideo(partnerId, msg.video.file_id, {
-                caption: msg.caption ? `🎭 *Anonim:* ${msg.caption}` : '🎭 *Anonim:* 🎥 Video yubordi',
-                parse_mode: 'Markdown'
+                caption: msg.caption ? `🎭 <b>Anonim:</b> ${msg.caption}` : '🎭 <b>Anonim:</b> 🎥 Video yubordi',
+                parse_mode: 'HTML'
             });
         } else if (msg.document) {
             bot.sendDocument(partnerId, msg.document.file_id, {
-                caption: msg.caption ? `🎭 *Anonim:* ${msg.caption}` : '🎭 *Anonim:* 📎 Fayl yubordi',
-                parse_mode: 'Markdown'
+                caption: msg.caption ? `🎭 <b>Anonim:</b> ${msg.caption}` : '🎭 <b>Anonim:</b> 📎 Fayl yubordi',
+                parse_mode: 'HTML'
             });
         } else if (msg.sticker) {
             bot.sendSticker(partnerId, msg.sticker.file_id);
-            bot.sendMessage(partnerId, '🎭 *Anonim:* 😄 Sticker yubordi', { parse_mode: 'Markdown' });
+            bot.sendMessage(partnerId, '🎭 <b>Anonim:</b> 😄 Sticker yubordi', { parse_mode: 'HTML' });
         } else if (msg.audio) {
             bot.sendAudio(partnerId, msg.audio.file_id, {
-                caption: msg.caption ? `🎭 *Anonim:* ${msg.caption}` : '🎭 *Anonim:* 🎵 Audio yubordi',
-                parse_mode: 'Markdown'
+                caption: msg.caption ? `🎭 <b>Anonim:</b> ${msg.caption}` : '🎭 <b>Anonim:</b> 🎵 Audio yubordi',
+                parse_mode: 'HTML'
             });
         } else if (msg.video_note) {
             bot.sendVideoNote(partnerId, msg.video_note.file_id);
-            bot.sendMessage(partnerId, '🎭 *Anonim:* 📹 Video xabar yubordi', { parse_mode: 'Markdown' });
+            bot.sendMessage(partnerId, '🎭 <b>Anonim:</b> 📹 Video xabar yubordi', { parse_mode: 'HTML' });
         } else {
             // Boshqa turdagi xabarlar
-            bot.sendMessage(partnerId, '🎭 *Anonim:* 📎 Media fayl yubordi', { parse_mode: 'Markdown' });
+            bot.sendMessage(partnerId, '🎭 <b>Anonim:</b> 📎 Media fayl yubordi', { parse_mode: 'HTML' });
         }
     } else {
         // Agar suhbatda bo'lmasa, avtomatik start qilish
