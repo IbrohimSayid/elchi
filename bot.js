@@ -20,6 +20,18 @@ bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id;
     const user = msg.from;
     
+    // Agar foydalanuvchi allaqachon faol suhbatda bo'lsa
+    if (activeChats[chatId]) {
+        bot.sendMessage(chatId, '⚠️ Siz allaqachon faol suhbatdasiz! Suhbatni tugatish uchun /stop buyrug\'ini ishlating.');
+        return;
+    }
+    
+    // Agar foydalanuvchi allaqachon kutish navbatida bo'lsa
+    if (waitingUsers.includes(chatId)) {
+        bot.sendMessage(chatId, '⚠️ Siz allaqachon navbatdasiz! Ikkinchi foydalanuvchi kirishini kutib turing.');
+        return;
+    }
+    
     // Foydalanuvchi ma'lumotlarini saqlash
     allUsers[chatId] = {
         id: chatId,
@@ -66,7 +78,7 @@ bot.onText(/\/start/, (msg) => {
             bot.sendPhoto(partnerId, imagePath);
         }
         
-        // Kutayotgan foydalanuvchiga text xabar
+        // Kutayotgan foydalanuvchiga text xabar (Bu yer tuzatildi!)
         const partnerMessage = `🎉 <b>Ikkinchi odam qo'shildi suhbat boshlandi!</b> 💬✨
 
 🎭 <b>Anonim Chat Bot</b>da suhbat boshlandi!
@@ -253,31 +265,54 @@ bot.onText(/\/del(.+)/, (msg, match) => {
     }
     
     // targetUserId ni number va string sifatida tekshirish
-    if (allUsers[targetUserId] || allUsers[parseInt(targetUserId)]) {
-        const userKey = allUsers[targetUserId] ? targetUserId : parseInt(targetUserId);
+    const targetUserIdNum = parseInt(targetUserId);
+    const userKey = allUsers[targetUserId] ? targetUserId : (allUsers[targetUserIdNum] ? targetUserIdNum : null);
+    
+    if (userKey && allUsers[userKey]) {
         const deletedUser = allUsers[userKey];
-        delete allUsers[userKey];
+        
+        // Foydalanuvchiga o'chirilish haqida xabar yuborish (bot to'xtatilishidan oldin)
+        try {
+            bot.sendMessage(userKey, '🚫 Admin tomonidan tizimdan o\'chirildingiz. Bot sizni artiq tanimaydida. Qaytadan /start bosib kirish uchun qayta urinishingiz mumkin.');
+        } catch (error) {
+            console.log(`Foydalanuvchi ${userKey} ga xabar yuborishda xatolik:`, error.message);
+        }
         
         // Agar o'chirilayotgan foydalanuvchi faol suhbatda bo'lsa
         if (activeChats[userKey]) {
             const partnerId = activeChats[userKey];
             delete activeChats[userKey];
             delete activeChats[partnerId];
-            bot.sendMessage(partnerId, '❌ Hamkoringiz tizimdan o\'chirildi. Suhbat tugadi. 😔');
+            
+            try {
+                bot.sendMessage(partnerId, '❌ Hamkoringiz tizimdan o\'chirildi. Suhbat tugadi. Yangi suhbat uchun /start bosing. 😔');
+            } catch (error) {
+                console.log(`Partner ${partnerId} ga xabar yuborishda xatolik:`, error.message);
+            }
         }
         
-        // Navbatdan o'chirish (number formatda)
+        // Navbatdan o'chirish
         const waitingIndex = waitingUsers.indexOf(parseInt(userKey));
         if (waitingIndex > -1) {
             waitingUsers.splice(waitingIndex, 1);
         }
         
-        bot.sendMessage(chatId, `✅ Foydalanuvchi o'chirildi:\n👤 <b>Ism:</b> ${deletedUser.firstName}\n🆔 <b>ID:</b> ${userKey}`, { parse_mode: 'HTML' });
+        // String formatdagi indexni ham tekshirish
+        const waitingIndexStr = waitingUsers.indexOf(userKey.toString());
+        if (waitingIndexStr > -1) {
+            waitingUsers.splice(waitingIndexStr, 1);
+        }
+        
+        // Foydalanuvchini allUsers dan o'chirish
+        delete allUsers[userKey];
+        
+        bot.sendMessage(chatId, `✅ Foydalanuvchi o'chirildi:\n👤 <b>Ism:</b> ${deletedUser.firstName}\n🆔 <b>ID:</b> ${userKey}\n\n💡 O'chirilgan foydalanuvchi qaytadan /start bossa, yangi foydalanuvchi sifatida qabul qilinadi.`, { parse_mode: 'HTML' });
         
         // Yangi admin panel ko'rsatish
         setTimeout(() => {
             bot.sendMessage(chatId, '/admin - Yangilangan ro\'yxatni ko\'rish uchun');
         }, 1000);
+        
     } else {
         bot.sendMessage(chatId, '❗ Bunday foydalanuvchi topilmadi. 🤷‍♂️\n\n💡 ID ni to\'g\'ri nusxalashni tekshiring.');
     }
@@ -333,6 +368,15 @@ bot.on('message', (msg) => {
     if (activeChats[chatId]) {
         const partnerId = activeChats[chatId];
         
+        // Hamkor hali ham mavjudligini tekshirish
+        if (!allUsers[partnerId]) {
+            // Hamkor o'chirilgan bo'lsa, suhbatni tugatish
+            delete activeChats[chatId];
+            delete activeChats[partnerId];
+            bot.sendMessage(chatId, '❌ Hamkoringiz tizimdan o\'chirildi. Suhbat tugadi. Yangi suhbat uchun /start bosing.');
+            return;
+        }
+        
         // Xabar turini aniqlash va hamkorga yuborish
         if (msg.text) {
             bot.sendMessage(partnerId, `🎭 <b>Anonim:</b> ${msg.text}`, { parse_mode: 'HTML' });
@@ -370,9 +414,13 @@ bot.on('message', (msg) => {
             bot.sendMessage(partnerId, '🎭 <b>Anonim:</b> 📎 Media fayl yubordi', { parse_mode: 'HTML' });
         }
     } else {
-        // Agar suhbatda bo'lmasa, avtomatik start qilish
+        // Agar suhbatda bo'lmasa va navbatda ham bo'lmasa
         if (!waitingUsers.includes(chatId)) {
-            bot.sendMessage(chatId, '🔄 Avval /start buyrug\'ini bering yoki hamkor kutib turing... ⏳');
+            // Ikkinchi odam yo'q degan xabar
+            bot.sendMessage(chatId, '😴 Ko\'zingizni qising! Ikkinchi odam yo\'q. /start buyrug\'ini bering va hamkor kutib turing... 👁️‍🗨️');
+        } else {
+            // Navbatda kutayotgan bo'lsa
+            bot.sendMessage(chatId, '⏳ Siz navbatdasiz. Ikkinchi foydalanuvchi kirishini sabr bilan kutib turing...');
         }
     }
 });
