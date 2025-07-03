@@ -32,6 +32,13 @@ bot.onText(/\/start/, (msg) => {
         return;
     }
     
+    // 3-chi user tekshiruvi - faqat 2 ta user bo'lishi kerak
+    const totalActiveUsers = Object.keys(activeChats).length + waitingUsers.length;
+    if (totalActiveUsers >= 2) {
+        bot.sendMessage(chatId, '🚫 Siz ortiqchasiz ko\'zingizni qisib o\'tiring🤌🏽\n\n💡 Bot faqat 2 ta foydalanuvchi uchun mo\'ljallangan. Biror kishi chiqgandan keyin qaytadan urinib ko\'ring.');
+        return;
+    }
+    
     // Foydalanuvchi ma'lumotlarini saqlash
     allUsers[chatId] = {
         id: chatId,
