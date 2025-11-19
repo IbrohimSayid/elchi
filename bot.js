@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Bot tokenni o'rnatish
-const token = '8135909254:AAE289D4zgap2B-LHGqoCSQEZTnJ2WW2mac';
+const token = '8291474284:AAFw1WC3UxjxpvWZN6cDhfK4F5m_NgVgrOk';
 const bot = new TelegramBot(token, { polling: true });
 
 // Ma'lumotlar bazasi (xotirada)
@@ -15,8 +15,38 @@ let adminMode = {}; // Admin rejimidagi foydalanuvchilar
 // Admin ID-lari (o'zgartirishingiz mumkin)
 const adminIds = []; // Bu yerga admin ID larini qo'shing
 
+const registerUser = (chatId, user) => {
+    if (!allUsers[chatId]) {
+        allUsers[chatId] = {
+            id: chatId,
+            firstName: user.first_name || 'N/A',
+            lastName: user.last_name || 'N/A',
+            username: user.username || 'N/A',
+            joinDate: new Date().toISOString()
+        };
+    } else {
+        allUsers[chatId].lastSeen = new Date().toISOString();
+    }
+};
+
+const sendWelcomeSequence = async (chatId) => {
+    const imagePath = path.join(__dirname, 'images', 'gul.jpeg');
+    if (fs.existsSync(imagePath)) {
+        await bot.sendPhoto(chatId, imagePath);
+    }
+    
+    const waitingMessage = `🌸 <b>Iyye, xush kelibsiz!</b>
+
+🌹 Bu gul sizga. Hozir kelaman, kutib turing 😉
+🚫 Ketib qolish yo'q lekin, heeeyy!
+
+⏳ <b>Iltimos kutib turing...</b>`;
+    
+    await bot.sendMessage(chatId, waitingMessage, { parse_mode: 'HTML' });
+};
+
 // Start komandasi
-bot.onText(/\/start/, (msg) => {
+bot.onText(/\/start/, async (msg) => {
     const chatId = msg.chat.id;
     const user = msg.from;
     
@@ -40,13 +70,10 @@ bot.onText(/\/start/, (msg) => {
     }
     
     // Foydalanuvchi ma'lumotlarini saqlash
-    allUsers[chatId] = {
-        id: chatId,
-        firstName: user.first_name || 'N/A',
-        lastName: user.last_name || 'N/A',
-        username: user.username || 'N/A',
-        joinDate: new Date().toISOString()
-    };
+    registerUser(chatId, user);
+    
+    // Har doim welcome rasm va xabar yuborish
+    await sendWelcomeSequence(chatId);
     
     // Agar navbatda kimdir kutayotgan bo'lsa
     if (waitingUsers.length > 0) {
@@ -56,12 +83,6 @@ bot.onText(/\/start/, (msg) => {
         // Ikkala foydalanuvchini faol chatga qo'shish
         activeChats[chatId] = partnerId;
         activeChats[partnerId] = chatId;
-        
-        // Yangi kelgan foydalanuvchiga rasm yuborish
-        const imagePath = path.join(__dirname, 'images', 'gul.jpeg');
-        if (fs.existsSync(imagePath)) {
-            bot.sendPhoto(chatId, imagePath);
-        }
         
         // Yangi kelgan foydalanuvchiga text xabar
         const joinedMessage = `🎉 <b>Ikkinchi odam qo'shildi suhbat boshlandi!</b> 💬✨
@@ -80,11 +101,6 @@ bot.onText(/\/start/, (msg) => {
         
         bot.sendMessage(chatId, joinedMessage, { parse_mode: 'HTML' });
         
-        // Kutayotgan foydalanuvchiga ham rasm yuborish
-        if (fs.existsSync(imagePath)) {
-            bot.sendPhoto(partnerId, imagePath);
-        }
-        
         // Kutayotgan foydalanuvchiga text xabar (Bu yer tuzatildi!)
         const partnerMessage = `🎉 <b>Ikkinchi odam qo'shildi suhbat boshlandi!</b> 💬✨
 
@@ -102,37 +118,13 @@ bot.onText(/\/start/, (msg) => {
         
         bot.sendMessage(partnerId, partnerMessage, { parse_mode: 'HTML' });
         
+        // Birinchi foydalanuvchiga hamkor kirgani haqida xabar
+        const partnerJoinedNotice = `🚀 <b>Gazini bosing!</b>\nHamkoringiz kirdi va suhbat tayyor. 😊`;
+        bot.sendMessage(partnerId, partnerJoinedNotice, { parse_mode: 'HTML' });
+        
     } else {
         // Birinchi foydalanuvchi - navbatga qo'shish
         waitingUsers.push(chatId);
-        
-        // Birinchi foydalanuvchiga rasm yuborish
-        const imagePath = path.join(__dirname, 'images', 'gul.jpeg');
-        if (fs.existsSync(imagePath)) {
-            bot.sendPhoto(chatId, imagePath);
-        }
-        
-        // Birinchi foydalanuvchiga text xabar
-        const waitingMessage = `⏳ <b>Ikkinchi odam kirishi kutilmoqda...</b> 🙏
-
-🎭 <b>Anonim Chat Bot</b>ga xush kelibsiz!
-
-🔍 Hamkor qidirilmoqda...
-⏰ Iltimos kutib turing
-👥 Ikkinchi foydalanuvchi kirishini kutmoqda
-
-📋 <b>Ma'lumot:</b>
-• Siz birinchi foydalanuvchisiz
-• Ikkinchi odam kirganda avtomatik bog'lanasiz
-• Barcha suhbatlar anonim bo'ladi
-
-📋 <b>Yordam komandalar:</b>
-🚪 /exit - Navbatdan chiqish
-🔄 /start - Qaytadan urinish
-
-⏳ <b>Iltimos kutib turing...</b>`;
-        
-        bot.sendMessage(chatId, waitingMessage, { parse_mode: 'HTML' });
     }
 });
 
@@ -360,6 +352,12 @@ bot.onText(/\/exit/, (msg) => {
 // Oddiy xabarlarni boshqarish
 bot.on('message', (msg) => {
     const chatId = msg.chat.id;
+    const user = msg.from;
+    
+    // Foydalanuvchini ro'yxatdan o'tkazish (agar /start bosmasdan xabar yuborsa ham)
+    if (user) {
+        registerUser(chatId, user);
+    }
     
     // Komandalarni e'tiborsiz qoldirish
     if (msg.text && msg.text.startsWith('/')) {
