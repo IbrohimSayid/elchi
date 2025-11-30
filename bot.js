@@ -10,6 +10,12 @@ let bot;
 // Muhitni aniqlash (Production yoki Development)
 if (process.env.NODE_ENV === 'production') {
     // Production (Railway) - Webhook
+    const webhookUrl = process.env.WEBHOOK_URL;
+    if (!webhookUrl) {
+        console.error('❌ CRITICAL ERROR: WEBHOOK_URL environment variable is not set in Railway!');
+        console.error('⚠️ Please add WEBHOOK_URL to your Railway project variables (e.g., https://your-project.up.railway.app)');
+    }
+
     bot = new TelegramBot(token, { polling: false });
     const app = express();
     app.use(express.json());
@@ -29,12 +35,14 @@ if (process.env.NODE_ENV === 'production') {
     app.listen(port, async () => {
         console.log(`🚀 Server running on port ${port}`);
         // Webhookni sozlash
-        const webhookUrl = `${process.env.WEBHOOK_URL}/bot${token}`;
-        try {
-            await bot.setWebHook(webhookUrl);
-            console.log(`✅ Webhook set to: ${webhookUrl}`);
-        } catch (error) {
-            console.error('❌ Error setting webhook:', error);
+        if (webhookUrl) {
+            const fullWebhookUrl = `${webhookUrl}/bot${token}`;
+            try {
+                await bot.setWebHook(fullWebhookUrl);
+                console.log(`✅ Webhook set to: ${fullWebhookUrl}`);
+            } catch (error) {
+                console.error('❌ Error setting webhook:', error);
+            }
         }
     });
 } else {
